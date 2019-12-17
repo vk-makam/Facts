@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Facts</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="right_arrow">Right arrow</string>
+    <string name="sample_header">Testing the lengthy header, can it fit the image and right arrow properly?</string>
+    <string name="sample_description">Beavers are second only to humans in their ability to manipulate and change their environment. They can measure up to 1.3 metres long. A group of beavers is called a colony</string>
+</resources>
