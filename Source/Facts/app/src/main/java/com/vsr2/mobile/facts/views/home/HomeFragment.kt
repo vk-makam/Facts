@@ -7,7 +7,7 @@ import com.vsr2.mobile.facts.BR
 import com.vsr2.mobile.facts.R
 import com.vsr2.mobile.facts.adapters.FactsListAdapter
 import com.vsr2.mobile.facts.databinding.FragmentHomeBinding
-import com.vsr2.mobile.facts.models.Fact
+import com.vsr2.mobile.facts.models.FactsResponse
 import com.vsr2.mobile.facts.viewmodels.home.HomeViewModel
 import com.vsr2.mobile.facts.views.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -30,9 +30,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
 
         viewModel.facts.observe(
             viewLifecycleOwner,
-            Observer<List<Fact>> { facts ->
-                facts?.apply {
-                    adapter.facts = facts
+            Observer<FactsResponse> { response ->
+                response?.apply {
+                    viewModel.title.postValue(response.title)
+                    adapter.facts = response.rows
                 }
             })
     }

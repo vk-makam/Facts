@@ -6,14 +6,12 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.vsr2.mobile.facts.R
-import com.vsr2.mobile.facts.listeners.OnBackPressedListener
 import com.vsr2.mobile.facts.viewmodels.base.BaseViewModel
 
 abstract class BaseActivity<TViewBinding : ViewDataBinding, TViewModel : BaseViewModel> :
-    AppCompatActivity(), FragmentManager.OnBackStackChangedListener {
+    AppCompatActivity() {
 
     // Contains the layoutId of Activity
     abstract val layoutId: Int
@@ -26,8 +24,6 @@ abstract class BaseActivity<TViewBinding : ViewDataBinding, TViewModel : BaseVie
 
     protected lateinit var viewModel: TViewModel
     protected lateinit var viewBinding: TViewBinding
-
-    protected lateinit var topFragment: BaseFragment<*, *>
 
     /**
      * Initializes the UI components here.
@@ -49,18 +45,11 @@ abstract class BaseActivity<TViewBinding : ViewDataBinding, TViewModel : BaseVie
         viewModel = ViewModelProviders.of(this).get(viewModelClass)
         viewBinding.setVariable(viewModelBR, viewModel)
 
-        // Updated the global variables
-        supportFragmentManager.addOnBackStackChangedListener(this)
+        // Observe title and set
+        viewModel.title.observe(this, Observer<String> { title -> supportActionBar?.title = title })
 
         // Initialize the UI components here
         initUi(savedInstanceState)
-    }
-
-    override fun onBackStackChanged() {
-
-        // Get the current Fragment and update the mFragment
-        topFragment =
-            supportFragmentManager.findFragmentById(R.id.contentPanel) as BaseFragment<*, *>
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -70,41 +59,5 @@ abstract class BaseActivity<TViewBinding : ViewDataBinding, TViewModel : BaseVie
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-
-        // Pass the event to current Fragment, if its able to handle
-        if (topFragment is OnBackPressedListener) {
-            (topFragment as OnBackPressedListener).onBackPressed()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    /**
-     * Launches the given Fragment
-     */
-    fun launchFragment(fragment: BaseFragment<*, *>, addToBackStack: Boolean) {
-        topFragment = fragment
-
-        val tag = fragment.javaClass.simpleName
-        try {
-            supportFragmentManager.popBackStack(
-                tag,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
-        }
-
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.contentPanel, topFragment, tag)
-        if (addToBackStack) {
-            transaction.addToBackStack(tag)
-        }
-
-        transaction.show(topFragment)
-        transaction.commitAllowingStateLoss()
     }
 }

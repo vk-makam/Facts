@@ -7,28 +7,17 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.vsr2.mobile.facts.R
-import com.vsr2.mobile.facts.listeners.OnBackPressedListener
 import com.vsr2.mobile.facts.viewmodels.base.BaseViewModel
 
 abstract class BaseFragment<TViewBinding : ViewDataBinding, TViewModel : BaseViewModel> :
-    Fragment(), OnBackPressedListener {
+    Fragment() {
 
     /**
      * Returns the current Fragments's LayoutId
      */
     protected abstract val layoutId: Int
-
-    /**
-     * Returns the current Fragments's title
-     */
-    protected open val title: Int = R.string.app_name
-
-    /**
-     * Returns the current Fragments's custom title, which is not from resources (strings.xml)
-     */
-    protected open val customTitle: String = ""
 
     /**
      * Returns the ViewModel class
@@ -56,16 +45,6 @@ abstract class BaseFragment<TViewBinding : ViewDataBinding, TViewModel : BaseVie
 
     }
 
-    /**
-     * Default implementation of back pressed event
-     * To customize, override in Fragment
-     * */
-    override fun onBackPressed() {
-
-        // Default behaviour of back pressed event
-        parentActivity.supportFragmentManager.popBackStack()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -85,25 +64,19 @@ abstract class BaseFragment<TViewBinding : ViewDataBinding, TViewModel : BaseVie
         viewBinding.setVariable(viewModelBR, viewModel)
         fragmentView = viewBinding.root
 
+        // Set the lifecycleOwner so DataBinding can observe LiveData
+        viewBinding.lifecycleOwner = viewLifecycleOwner
+
+        // Observe title and set
+        viewModel.title.observe(
+            viewLifecycleOwner,
+            Observer<String> { title -> parentActivity.supportActionBar?.title = title })
+
         return fragmentView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUi(savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // Get titleId
-        val titleId = title
-
-        // Check for valid titleId
-        if (-1 == titleId || 0 == titleId) {
-            parentActivity.title = customTitle
-        } else {
-            parentActivity.setTitle(titleId)
-        }
     }
 }

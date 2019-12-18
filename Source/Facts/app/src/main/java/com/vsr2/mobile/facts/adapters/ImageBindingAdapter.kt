@@ -15,6 +15,8 @@ object ImageBindingAdapter {
             .load(url)
             .placeholder(R.drawable.american_beaver)
             .error(R.drawable.american_beaver)
+            .dontAnimate()
+            .fitCenter()
             .into(view)
     }
 }
