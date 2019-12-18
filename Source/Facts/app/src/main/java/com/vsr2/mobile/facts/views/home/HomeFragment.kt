@@ -1,6 +1,7 @@
 package com.vsr2.mobile.facts.views.home
 
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vsr2.mobile.facts.BR
@@ -28,6 +29,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        // Observe the Facts from ViewModel and update the FactsListAdapter
         viewModel.facts.observe(
             viewLifecycleOwner,
             Observer<FactsResponse> { response ->
@@ -36,6 +38,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
                     adapter.facts = response.rows
                 }
             })
+
+        // Show or hide the no_data_layout
+        viewModel.noDataLayoutVisibility.observe(viewLifecycleOwner, Observer<Int> { visibility ->
+            no_data_layout.visibility = visibility
+        })
+
+        // Show or hide the  Shimmer animation
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer<Boolean> { isLoading ->
+
+            // TODO: Implement custom RecyclerView to handle Shimmer animation
+            if (isLoading) {
+                shimmer_layout.visibility = View.VISIBLE
+                pull_to_refresh.visibility = View.GONE
+            } else {
+                shimmer_layout.visibility = View.GONE
+                pull_to_refresh.visibility = View.VISIBLE
+            }
+        })
     }
 
     override fun initUi(bundle: Bundle?) {
@@ -45,5 +65,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
         facts_list.setHasFixedSize(false)
         facts_list.layoutManager = LinearLayoutManager(parentActivity)
         facts_list.adapter = adapter
+
+        // Handle pull to refresh
+        pull_to_refresh.setOnRefreshListener {
+
+            // Fetch the Facts from server
+            viewModel.refreshFacts()
+
+            // Hide the progress bar
+            pull_to_refresh.isRefreshing = false
+        }
     }
 }
