@@ -2,7 +2,6 @@ package com.vsr2.mobile.facts.views.base
 
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -50,14 +49,5 @@ abstract class BaseActivity<TViewBinding : ViewDataBinding, TViewModel : BaseVie
 
         // Initialize the UI components here
         initUi(savedInstanceState)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        if (android.R.id.home == item.itemId) {
-            supportFragmentManager.popBackStack()
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 }

@@ -1,6 +1,10 @@
 package com.vsr2.mobile.facts.views.home
 
 import android.os.Bundle
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.vsr2.mobile.facts.BR
 import com.vsr2.mobile.facts.R
 import com.vsr2.mobile.facts.databinding.ActivityMainBinding
@@ -9,6 +13,8 @@ import com.vsr2.mobile.facts.views.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
+
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override val layoutId: Int
         get() = R.layout.activity_main
@@ -24,5 +30,14 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        // Configure the AppBar
+        val navController: NavController = findNavController(R.id.navigation_host_fragment)
+        appBarConfiguration = AppBarConfiguration.Builder(R.id.home_view).build()
+        setupActionBarWithNavController(navController, appBarConfiguration)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return findNavController(R.id.navigation_host_fragment).navigateUp() || super.onSupportNavigateUp()
     }
 }

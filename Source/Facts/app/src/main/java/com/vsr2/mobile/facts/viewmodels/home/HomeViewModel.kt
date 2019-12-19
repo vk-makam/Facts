@@ -1,14 +1,17 @@
 package com.vsr2.mobile.facts.viewmodels.home
 
-import android.os.AsyncTask
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.vsr2.mobile.facts.models.FactsResponse
 import com.vsr2.mobile.facts.network.FactService
 import com.vsr2.mobile.facts.network.RetrofitHelper
 import com.vsr2.mobile.facts.utils.APP_NAME
 import com.vsr2.mobile.facts.viewmodels.base.BaseViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeViewModel : BaseViewModel() {
 
@@ -27,47 +30,17 @@ class HomeViewModel : BaseViewModel() {
     }
 
     fun refreshFacts() {
-        MakeRequest().execute()
+
+        viewModelScope.launch {
+            fetchFacts()
+        }
     }
 
-    inner class MakeRequest : AsyncTask<Void, Void, FactsResponse>() {
+    private suspend fun fetchFacts() {
 
-        override fun onPreExecute() {
-            super.onPreExecute()
-            isLoading.postValue(true)
-        }
+        isLoading.postValue(true)
 
-        override fun doInBackground(vararg p0: Void?): FactsResponse? {
-
-            // TODO: We can implement FactRepository method here, to avoid unnecessary API calls
-            return getFacts()
-        }
-
-        override fun onPostExecute(result: FactsResponse?) {
-            super.onPostExecute(result)
-            isLoading.postValue(false)
-
-            if (null == result) {
-                noDataLayoutVisibility.postValue(View.VISIBLE)
-            } else {
-                facts.postValue(result)
-            }
-        }
-
-        override fun onCancelled(facts: FactsResponse?) {
-            super.onCancelled()
-            isLoading.postValue(false)
-
-            if (null == facts) {
-                noDataLayoutVisibility.postValue(View.VISIBLE)
-            }
-        }
-
-        private fun getFacts(): FactsResponse? {
-            var facts: FactsResponse? = null
-
-            // TODO: Yet to check for internet connectivity, before hitting the server
-            // Time being its handle in catch block
+        withContext(Dispatchers.IO) {
 
             try {
 
@@ -76,15 +49,16 @@ class HomeViewModel : BaseViewModel() {
                 val response = call.execute()
 
                 if (response.isSuccessful) {
-                    facts = response.body()
+                    facts.postValue(response.body())
+                } else {
+                    isLoading.postValue(false)
                 }
-                // TODO: Handle else case and update the user
             } catch (e: Exception) {
                 Log.e(APP_NAME, e.message!!)
-                onCancelled(facts)
+                noDataLayoutVisibility.postValue(View.VISIBLE)
             }
-
-            return facts
         }
+
+        isLoading.postValue(false)
     }
 }
