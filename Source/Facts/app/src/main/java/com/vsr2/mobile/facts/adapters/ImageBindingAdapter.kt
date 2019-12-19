@@ -8,13 +8,13 @@ import com.vsr2.mobile.facts.R
 object ImageBindingAdapter {
 
     @JvmStatic
-    @BindingAdapter("app:imageUrl")
+    @BindingAdapter("imageUrl")
     fun setImageUrl(view: ImageView, url: String?) {
 
         Glide.with(view.context)
             .load(url)
-            .placeholder(R.drawable.american_beaver)
-            .error(R.drawable.american_beaver)
+            .placeholder(R.mipmap.ic_launcher)
+            .error(R.mipmap.ic_launcher)
             .dontAnimate()
             .fitCenter()
             .into(view)

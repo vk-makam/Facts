@@ -68,8 +68,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:contentDescription="@string/app_name"
-                    android:src="@drawable/american_beaver"
-                    app:imageUrl="@{fact.imageUrl}" />
+                    android:scaleType="fitCenter"
+                    app:imageUrl="@{fact.imageHref}"
+                    tools:src="@mipmap/ic_launcher" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
